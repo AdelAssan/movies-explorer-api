@@ -58,13 +58,7 @@ module.exports.getCurrentUser = (req, res, next) => {
       return;
     }
     res.send(user);
-  }).catch((error) => {
-    if (error.name === 'CastError') {
-      next(new ErrorData('Неправильный id'));
-      return;
-    }
-    next(error);
-  });
+  }).catch((error) => next(error));
 };
 
 module.exports.updateProfile = (req, res, next) => {
@@ -82,6 +76,10 @@ module.exports.updateProfile = (req, res, next) => {
       res.send(user);
     })
     .catch((error) => {
+      if (error.code === 11000) {
+        next(new Conflict('Такой email уже зарегистрирован'));
+        return;
+      }
       if (error.name === 'ValidationError') {
         next(new ErrorData('Переданы некорректные данные'));
         return;
