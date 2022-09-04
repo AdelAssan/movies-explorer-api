@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const cors = require('cors');
 const helmet = require('helmet');
+const limiter = require('./middlewares/rateLimitter');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const serverError = require('./middlewares/serverError');
 const index = require('./routes/index');
@@ -18,6 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(requestLogger);
 app.use(helmet());
+app.use(limiter);
 
 app.use(index);
 
