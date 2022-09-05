@@ -43,6 +43,7 @@ module.exports.loginUser = (req, res, next) => {
         { expiresIn: '7d' },
       );
       res.send({ token });
+      res.send({ token });
     })
     .catch(() => {
       next(new WrongData('Передан неправильный email или пароль'));
