@@ -4,39 +4,23 @@ const NotFoundError = require('../errors/NotFoundError');
 const WrongAction = require('../errors/WrongAction');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
-    .then((movies) => res.send(movies))
+  Movie.find({owner: req.user._id})
+    .then((movie) => res.send(movie))
     .catch((error) => next(error));
 };
 
 module.exports.postMovie = (req, res, next) => {
-  const {
-    country, director, duration,
-    year, description, image,
-    trailerLink, thumbnail, movieId, nameRU, nameEN,
-  } = req.body;
-  return Movie.create({
-    country,
-    director,
-    duration,
-    year,
-    description,
-    image,
-    trailerLink,
-    thumbnail,
-    movieId,
-    nameRU,
-    nameEN,
-    owner: req.user._id,
-  })
-    .then((movie) => res.send(movie))
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
-        next(new ErrorData('Переданы неккоректные данные'));
-        return;
-      }
-      next(error);
-    });
+  Movie.findOne({ movieId: req.body.movieId })
+      .then(() => {
+        return Movie.create({
+          ...req.body,
+          owner: req.user._id,
+        });
+      })
+      .then((movie) => {
+        res.send(movie);
+      })
+      .catch((error) => next(error));
 };
 
 module.exports.deleteMovie = (req, res, next) => {
