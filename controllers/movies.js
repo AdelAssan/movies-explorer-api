@@ -5,22 +5,38 @@ const WrongAction = require('../errors/WrongAction');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({owner: req.user._id})
-    .then((movie) => res.send(movie))
+    .then((movies) => res.send(movies))
     .catch((error) => next(error));
 };
 
 module.exports.postMovie = (req, res, next) => {
-  Movie.findOne({ movieId: req.body.movieId })
-      .then(() => {
-        return Movie.create({
-          ...req.body,
-          owner: req.user._id,
-        });
-      })
-      .then((movie) => {
-        res.send(movie);
-      })
-      .catch((error) => next(error));
+  const {
+    country, director, duration,
+    year, description, image,
+    trailerLink, thumbnail, movieId, nameRU, nameEN,
+  } = req.body;
+  return Movie.create({
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailerLink,
+    thumbnail,
+    movieId,
+    nameRU,
+    nameEN,
+    owner: req.user._id,
+  })
+    .then((movie) => res.send(movie))
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        next(new ErrorData('Переданы неккоректные данные'));
+        return;
+      }
+      next(error);
+    });
 };
 
 module.exports.deleteMovie = (req, res, next) => {
